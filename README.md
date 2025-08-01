@@ -1,5 +1,5 @@
 # StabCF
-StabCF: A Stabilized Training Method in Collaborative Filtering
+StabCF: A Stabilized Training Method for Collaborative Filtering
 
 This is our PyTorch implementation for the paper.
 
