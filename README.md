@@ -18,11 +18,12 @@ While such approaches have achieved strong empirical performance, **their traini
 <p align="center">
   <img src="assets/Motivation.png" alt="Training paradigm comparison" width="450">
 </p>
+
 In this work, we identify **two fundamental sources of training instability** in collaborative filtering:
 
-- **1、Unreliable positive samples**: A single observed interaction may not reliably reflect true user preference due to noise, sparsity, or accidental behaviors in implicit feedback.
+- **1. Unreliable positive samples**: A single observed interaction may not reliably reflect true user preference due to noise, sparsity, or accidental behaviors in implicit feedback.
 
-- **2、Inconsistent negative samples**: Negatives sampled from the vast unobserved space exhibit highly fluctuating hardness, leading to unstable and noisy gradient updates across training iterations.
+- **2. Inconsistent negative samples**: Negatives sampled from the vast unobserved space exhibit highly fluctuating hardness, leading to unstable and noisy gradient updates across training iterations.
 
 These two issues jointly cause unstable optimization dynamics, hindering convergence and resulting in fluctuating and suboptimal recommendation performance.
 
@@ -32,7 +33,7 @@ These two issues jointly cause unstable optimization dynamics, hindering converg
 </p>
 
 To address this problem, we propose **StabCF**, a **stabilized training framework** for collaborative filtering.  
-Instead of directly optimizing on raw training triplets \((u, i, j)\), StabCF synthesizes **context-aware positive–negative pairs** by jointly enhancing positive reliability and negative consistency.  
+Instead of directly optimizing on raw training triplets \(u, i, j\), StabCF synthesizes **context-aware positive–negative pairs** by jointly enhancing positive reliability and negative consistency.  
 This design smooths the training dynamics and leads to more stable and effective model optimization.
 
 
@@ -44,7 +45,7 @@ This design smooths the training dynamics and leads to more stable and effective
   StabCF explicitly targets training instability in CF by stabilizing both positive and negative samples.
 
 - **Context-Aware Sample Synthesis**  
-  Raw training triplets are replaced with synthesized \((u, i^\*, j^\*)\) pairs, improving optimization dynamics.
+  Raw training triplets are replaced with synthesized \(u, i^\*, j^\*\) pairs, improving optimization dynamics.
 
 - **Model-Agnostic and Plug-and-Play**  
   Easily integrates with popular CF backbones such as LightGCN, NGCF, and ApeGNN.
