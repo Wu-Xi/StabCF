@@ -123,7 +123,7 @@ python main.py --dataset amazon --gnn ngcf -batch_size 1024 --lr 0.0001 --l2 0.0
 If you find this repository useful, please cite our paper:
 
 ```bibtex
-@inproceedings{wu2025dcans,
+@inproceedings{wu2026stabcf,
 author = {Wu, Xi and Zhang, Wenzhe and Yang, Liangwei and Zhao, Yi and Peng, Jiquan and Gong, Jibing},
 title = {StabCF: A Stabilized Training Method for Collaborative Filtering},
 year = {2026},
