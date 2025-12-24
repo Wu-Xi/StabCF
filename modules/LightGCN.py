@@ -182,7 +182,7 @@ class LightGCN(nn.Module):
         if self.pool != 'concat':
             s_e = self.pooling(s_e).unsqueeze(dim=1)
 
-        """Hard Positve Boundary Definition"""
+        """Historical Positives Mixing"""
         observed_pos_e = item_gcn_emb[user_pos]     # [batch_size, n_pos, n_hops+1, channel]
         observed_pos_score = (s_e.unsqueeze(dim=1) * observed_pos_e).sum(dim=-1)        # [batch_size, n_pos, n_hops+1]
         observed_pos_score = torch.exp(observed_pos_score)      # [batch_size, n_pos, n_hops+1]
@@ -192,11 +192,11 @@ class LightGCN(nn.Module):
         
         # [batch_size, n_pos, n_hops+1] + [batch_size, n_hops+1]
         total_sum_pp = observed_pos_score.sum(dim=1) + pos_score      # [batch_size, n_hops+1]
-        weight1 =  (observed_pos_score / total_sum_pp.unsqueeze(dim=1)).unsqueeze(dim=-1)      # [batch_size, items, channel, 1]
-        weight2 = (pos_score / total_sum_pp).unsqueeze(dim=-1)      # [batch_size, channel]
-        p_e_ = (weight1 * observed_pos_e).sum(dim=1) + weight2 * p_e        # [batch_size, channel]
+        weight1 =  (observed_pos_score / total_sum_pp.unsqueeze(dim=1)).unsqueeze(dim=-1)      # [batch_size, n_pos, n_hops+1, 1]
+        weight2 = (pos_score / total_sum_pp).unsqueeze(dim=-1)      # [batch_size, n_hops+1, 1]
+        p_e_ = (weight1 * observed_pos_e).sum(dim=1) + weight2 * p_e        # [batch_size, n_hops+1, channel]
 
-        """Hard Negative Boundary Definition"""
+        """User-Aware Negatives Mixing"""
         n_e = item_gcn_emb[neg_candidates]      # [batch_size, n_negs, n_hops+1, channel]
         scores_un = (s_e.unsqueeze(dim=1) * n_e).sum(dim=-1)       #[batch_size, n_negs, n_hops+1]
         indices_max_un = torch.max(scores_un, dim=1)[1].detach()
@@ -206,10 +206,9 @@ class LightGCN(nn.Module):
         
         neg_items_emb_ = n_e.permute([0, 2, 1, 3])  # [batch_size, n_hops+1, n_negs, channel]
         
-        neg_items_embedding_hardest_un = neg_items_emb_[[[i] for i in range(batch_size)],range(neg_items_emb_.shape[1]), indices_max_un, :] 
+        neg_items_embedding_hardest_un = neg_items_emb_[[[i] for i in range(batch_size)],range(neg_items_emb_.shape[1]), indices_max_un, :]   # [batch_size, n_hops+1, channel]
         neg_items_embedding_hardest_pn = neg_items_emb_[[[i] for i in range(batch_size)],range(neg_items_emb_.shape[1]), indices_max_pn, :] 
  
-        """Importance-aware Mixup"""
         _pos_score = (s_e * p_e_).sum(dim=-1)       # [batch_size, n_hops+1]
         _pos_score = self.alpha * torch.exp(_pos_score)
         
@@ -220,12 +219,12 @@ class LightGCN(nn.Module):
         neg_score_pn = torch.exp(neg_score_pn)
         
         total_sum = neg_score_pn + neg_score_un + _pos_score      # [batch_size, n_hops+1]
-        neg_weight_un = (neg_score_un / total_sum).unsqueeze(dim=-1)
+        neg_weight_un = (neg_score_un / total_sum).unsqueeze(dim=-1)     # [batch_size, n_hops+1, 1]
         neg_weight_pn = (neg_score_pn / total_sum).unsqueeze(dim=-1)
         
         pos_weight = 1 - (neg_weight_un + neg_weight_pn)
         
-        n_e_ =  pos_weight * p_e_ + neg_weight_un * neg_items_embedding_hardest_un + neg_weight_pn * neg_items_embedding_hardest_pn
+        n_e_ =  pos_weight * p_e_ + neg_weight_un * neg_items_embedding_hardest_un + neg_weight_pn * neg_items_embedding_hardest_pn   # [batch_size, n_hops+1, channel]
         return p_e_, n_e_
 
     def dns_negative_sampling(self, user_gcn_emb, item_gcn_emb, user, neg_candidates, pos_item):

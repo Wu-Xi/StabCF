@@ -2,7 +2,7 @@ import argparse
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="DINS")
+    parser = argparse.ArgumentParser(description="StabCF")
 
     # ===== dataset ===== #
     parser.add_argument("--dataset", nargs="?", default="yelp2018",
@@ -13,7 +13,7 @@ def parse_args():
 
     # ===== train ===== # 
     parser.add_argument("--gnn", nargs="?", default="lightgcn",
-                        help="Choose a recommender:[lightgcn, ngcf, mf]")
+                        help="Choose a recommender:[lightgcn, ngcf, ApeGNN_HT]")
     parser.add_argument('--epoch', type=int, default=1000, help='number of epochs')
     parser.add_argument('--batch_size', type=int, default=2048, help='batch size')
     parser.add_argument('--test_batch_size', type=int, default=2048, help='batch size in evaluation phase')
@@ -42,8 +42,9 @@ def parse_args():
     parser.add_argument("--K", type=int, default=1, help="number of negative in K-pair loss")
     
 
+    # ===== StabCF ===== # 
+    parser.add_argument("--historical positives", type=int, default=5, help="number of observed positive item")
 
-    
     # ===== DENS ===== # 
     parser.add_argument("--warmup", type=float, default=100, help="weight for relevant factor")
     parser.add_argument("--gamma", type=float, default=0.3, help="weight for gating task")
@@ -52,11 +53,6 @@ def parse_args():
     parser.add_argument("--simi", type=str, default='ip', help="[ip, cos, ed]")
     parser.add_argument("--p", type=int, default=-2, help="power")
     parser.add_argument("--beta", type=float, default=0.1, help="beta")
-    
-    
-    # ===== StabCF ===== # 
-    parser.add_argument("--window_length", type=int, default=5, help="number of observed positive item")
-    parser.add_argument("--model_ablation", type=int, default=1)
     
 
     # ===== model test ===== # 
